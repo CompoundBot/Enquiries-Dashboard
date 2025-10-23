@@ -853,7 +853,7 @@ Or ask for help to see all available commands!`;
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* Discovery Call Conversion */}
                     <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
                                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                                     Discovery Call Conversion
@@ -871,11 +871,27 @@ Or ask for help to see all available commands!`;
                                 </svg>
                             </div>
                         </div>
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div className={`text-xl font-bold mb-1 ${
+                                metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? 
+                                    'text-green-600 dark:text-green-400' : 
+                                    'text-red-600 dark:text-red-400'
+                            }`}>
+                                {metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? '+' : ''}
+                                {metrics.lastMonthDiscoveryCallConversion > 0 ? 
+                                    Math.round(((metrics.discoveryCallConversion - metrics.lastMonthDiscoveryCallConversion) / metrics.lastMonthDiscoveryCallConversion) * 100) : 
+                                    metrics.discoveryCallConversion > 0 ? 100 : 0
+                                }%
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-500">
+                                vs Last Month ({metrics.lastMonthDiscoveryCallConversion}%)
+                            </p>
+                        </div>
                     </div>
 
                     {/* Live Call Conversion */}
                     <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
                                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                                     Live Call Conversion
@@ -893,11 +909,27 @@ Or ask for help to see all available commands!`;
                                 </svg>
                             </div>
                         </div>
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div className={`text-xl font-bold mb-1 ${
+                                metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? 
+                                    'text-green-600 dark:text-green-400' : 
+                                    'text-red-600 dark:text-red-400'
+                            }`}>
+                                {metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? '+' : ''}
+                                {metrics.lastMonthLiveCallConversion > 0 ? 
+                                    Math.round(((metrics.liveCallConversion - metrics.lastMonthLiveCallConversion) / metrics.lastMonthLiveCallConversion) * 100) : 
+                                    metrics.liveCallConversion > 0 ? 100 : 0
+                                }%
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-500">
+                                vs Last Month ({metrics.lastMonthLiveCallConversion}%)
+                            </p>
+                        </div>
                     </div>
 
                     {/* Discovery → Live Call Conversion */}
                     <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
                                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                                     Discovery → Live Call
@@ -915,61 +947,8 @@ Or ask for help to see all available commands!`;
                                 </svg>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Conversion Performance Insights */}
-                <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Conversion Performance Insights
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
-                            <div className={`text-2xl font-bold mb-1 ${
-                                metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? 
-                                    'text-green-600 dark:text-green-400' : 
-                                    'text-red-600 dark:text-red-400'
-                            }`}>
-                                {metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? '+' : ''}
-                                {metrics.lastMonthDiscoveryCallConversion > 0 ? 
-                                    Math.round(((metrics.discoveryCallConversion - metrics.lastMonthDiscoveryCallConversion) / metrics.lastMonthDiscoveryCallConversion) * 100) : 
-                                    metrics.discoveryCallConversion > 0 ? 100 : 0
-                                }%
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Discovery Call Conversion
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                vs Last Month ({metrics.lastMonthDiscoveryCallConversion}% → {metrics.discoveryCallConversion}%)
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                (prorated to day {new Date().getDate()})
-                            </p>
-                        </div>
-                        <div className="text-center">
-                            <div className={`text-2xl font-bold mb-1 ${
-                                metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? 
-                                    'text-green-600 dark:text-green-400' : 
-                                    'text-red-600 dark:text-red-400'
-                            }`}>
-                                {metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? '+' : ''}
-                                {metrics.lastMonthLiveCallConversion > 0 ? 
-                                    Math.round(((metrics.liveCallConversion - metrics.lastMonthLiveCallConversion) / metrics.lastMonthLiveCallConversion) * 100) : 
-                                    metrics.liveCallConversion > 0 ? 100 : 0
-                                }%
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Live Call Conversion
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                vs Last Month ({metrics.lastMonthLiveCallConversion}% → {metrics.liveCallConversion}%)
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                (prorated to day {new Date().getDate()})
-                            </p>
-                        </div>
-                        <div className="text-center">
-                            <div className={`text-2xl font-bold mb-1 ${
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div className={`text-xl font-bold mb-1 ${
                                 metrics.discoveryToLiveCallConversion > metrics.lastMonthDiscoveryToLiveCallConversion ? 
                                     'text-green-600 dark:text-green-400' : 
                                     'text-red-600 dark:text-red-400'
@@ -980,14 +959,8 @@ Or ask for help to see all available commands!`;
                                     metrics.discoveryToLiveCallConversion > 0 ? 100 : 0
                                 }%
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Discovery → Live Call Conversion
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                vs Last Month ({metrics.lastMonthDiscoveryToLiveCallConversion}% → {metrics.discoveryToLiveCallConversion}%)
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                (prorated to day {new Date().getDate()})
+                            <p className="text-xs text-gray-500 dark:text-gray-500">
+                                vs Last Month ({metrics.lastMonthDiscoveryToLiveCallConversion}%)
                             </p>
                         </div>
                     </div>
