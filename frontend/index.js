@@ -498,6 +498,48 @@ Or ask for help to see all available commands!`;
                 percentage: Math.round((count / currentMonthRecords.length) * 100 * 10) / 10
             }));
 
+        // Calculate last month conversion metrics
+        const lastMonthRecords = records.filter(record => {
+            const date = getDateFromRecord(record);
+            return isInMonth(date, lastMonthYear, lastMonth);
+        });
+
+        const lastMonthWithDiscovery = lastMonthRecords.filter(record => {
+            if (!discoveryCallField) return false;
+            const value = record.getCellValue(discoveryCallField);
+            return value !== null && value !== undefined && value !== '';
+        }).length;
+
+        const lastMonthWithLiveCall = lastMonthRecords.filter(record => {
+            if (!liveCallField) return false;
+            const value = record.getCellValue(liveCallField);
+            return value !== null && value !== undefined && value !== '';
+        }).length;
+
+        const lastMonthDiscoveryCallConversion = lastMonthRecords.length > 0 ? 
+            Math.round((lastMonthWithDiscovery / lastMonthRecords.length) * 100 * 10) / 10 : 0;
+
+        const lastMonthLiveCallConversion = lastMonthRecords.length > 0 ? 
+            Math.round((lastMonthWithLiveCall / lastMonthRecords.length) * 100 * 10) / 10 : 0;
+
+        // Calculate Last Month Discovery → Live Call Conversion Rate
+        const lastMonthWithBothDiscoveryAndLive = lastMonthRecords.filter(record => {
+            const hasDiscovery = discoveryCallField ? 
+                record.getCellValue(discoveryCallField) !== null && 
+                record.getCellValue(discoveryCallField) !== undefined && 
+                record.getCellValue(discoveryCallField) !== '' : false;
+            
+            const hasLiveCall = liveCallField ? 
+                record.getCellValue(liveCallField) !== null && 
+                record.getCellValue(liveCallField) !== undefined && 
+                record.getCellValue(liveCallField) !== '' : false;
+            
+            return hasDiscovery && hasLiveCall;
+        }).length;
+
+        const lastMonthDiscoveryToLiveCallConversion = lastMonthWithDiscovery > 0 ? 
+            Math.round((lastMonthWithBothDiscoveryAndLive / lastMonthWithDiscovery) * 100 * 10) / 10 : 0;
+
         // Calculate prorated comparisons for Performance Insights
         const currentDate = new Date();
         const currentDay = currentDate.getDate();
@@ -511,6 +553,9 @@ Or ask for help to see all available commands!`;
         
         // Prorated 3-month average: (current day / total days) * 3-month average
         const prorated3MonthAverage = (currentDay / daysInCurrentMonth) * last3MonthsAverage;
+
+        // For conversion rate comparisons, we compare current month's rate to last month's full rate
+        // This shows how conversion performance is trending month-over-month
 
         return {
             currentMonth: currentMonthEnquiries,
@@ -527,7 +572,10 @@ Or ask for help to see all available commands!`;
             proratedLastMonth,
             prorated3MonthAverage,
             topSources,
-            totalSources: Object.keys(sourceMetrics).length
+            totalSources: Object.keys(sourceMetrics).length,
+            lastMonthDiscoveryCallConversion,
+            lastMonthLiveCallConversion,
+            lastMonthDiscoveryToLiveCallConversion
         };
     }, [records, customPropertyValueByKey.dateField]);
 
@@ -738,7 +786,7 @@ Or ask for help to see all available commands!`;
                 {/* Performance Insights */}
                 <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Performance Insights
+                        Enquiries Performance Insights
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="text-center">
@@ -866,6 +914,81 @@ Or ask for help to see all available commands!`;
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                 </svg>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Conversion Performance Insights */}
+                <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Conversion Performance Insights
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="text-center">
+                            <div className={`text-2xl font-bold mb-1 ${
+                                metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? 
+                                    'text-green-600 dark:text-green-400' : 
+                                    'text-red-600 dark:text-red-400'
+                            }`}>
+                                {metrics.discoveryCallConversion > metrics.lastMonthDiscoveryCallConversion ? '+' : ''}
+                                {metrics.lastMonthDiscoveryCallConversion > 0 ? 
+                                    Math.round(((metrics.discoveryCallConversion - metrics.lastMonthDiscoveryCallConversion) / metrics.lastMonthDiscoveryCallConversion) * 100) : 
+                                    metrics.discoveryCallConversion > 0 ? 100 : 0
+                                }%
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Discovery Call Conversion
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                vs Last Month ({metrics.lastMonthDiscoveryCallConversion}% → {metrics.discoveryCallConversion}%)
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                (prorated to day {new Date().getDate()})
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <div className={`text-2xl font-bold mb-1 ${
+                                metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? 
+                                    'text-green-600 dark:text-green-400' : 
+                                    'text-red-600 dark:text-red-400'
+                            }`}>
+                                {metrics.liveCallConversion > metrics.lastMonthLiveCallConversion ? '+' : ''}
+                                {metrics.lastMonthLiveCallConversion > 0 ? 
+                                    Math.round(((metrics.liveCallConversion - metrics.lastMonthLiveCallConversion) / metrics.lastMonthLiveCallConversion) * 100) : 
+                                    metrics.liveCallConversion > 0 ? 100 : 0
+                                }%
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Live Call Conversion
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                vs Last Month ({metrics.lastMonthLiveCallConversion}% → {metrics.liveCallConversion}%)
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                (prorated to day {new Date().getDate()})
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <div className={`text-2xl font-bold mb-1 ${
+                                metrics.discoveryToLiveCallConversion > metrics.lastMonthDiscoveryToLiveCallConversion ? 
+                                    'text-green-600 dark:text-green-400' : 
+                                    'text-red-600 dark:text-red-400'
+                            }`}>
+                                {metrics.discoveryToLiveCallConversion > metrics.lastMonthDiscoveryToLiveCallConversion ? '+' : ''}
+                                {metrics.lastMonthDiscoveryToLiveCallConversion > 0 ? 
+                                    Math.round(((metrics.discoveryToLiveCallConversion - metrics.lastMonthDiscoveryToLiveCallConversion) / metrics.lastMonthDiscoveryToLiveCallConversion) * 100) : 
+                                    metrics.discoveryToLiveCallConversion > 0 ? 100 : 0
+                                }%
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Discovery → Live Call Conversion
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                vs Last Month ({metrics.lastMonthDiscoveryToLiveCallConversion}% → {metrics.discoveryToLiveCallConversion}%)
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                (prorated to day {new Date().getDate()})
+                            </p>
                         </div>
                     </div>
                 </div>
